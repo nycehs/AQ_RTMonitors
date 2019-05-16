@@ -1,0 +1,59 @@
+sudo cp /home/pi/SystemDeploy/*.* /usr/local/bin/AzHubService/
+cp /usr/local/bin/AzHubService/*.* /home/pi/SystemDeploy/
+sudo cp *.* /usr/local/bin/AzHubService/
+
+/usr/bin/idle3
+leafpad
+sudo leafpad /usr/local/bin/AzHubService/AzHubReader.ini
+sudo /usr/bin/idle3 /usr/local/bin/AzHubService/AzHubReader.py
+sudo leafpad /usr/local/bin/AzHubService/AzHubSender.py
+
+sudo systemctl stop azhub.service
+sudo leafpad /etc/systemd/system/azhub.service
+sudo systemctl daemon-reload
+
+sudo systemctl stop AzHubReader.service
+sudo systemctl stop AzHubSender.service
+sudo systemctl start AzHubReader.service
+sudo systemctl start AzHubSender.service
+sudo systemctl status AzHubReader.service
+sudo systemctl status AzHubSender.service
+
+journalctl -u AzHubReader
+sudo systemctl enable AzHubReader.service
+sudo systemctl enable AzHubSender.service
+-------------------Install Sqlite
+sudo apt-get update
+sudo apt-get dist-upgrade
+sudo apt-get install sqlite3
+--if not found:
+-sudo apt-get autoremove; sudo apt-get autoclean; sudo apt-get clean
+-sudo apt-get update; sudo apt-get -y dist-upgrade; sudo apt-get install sqlite3
+
+
+--------Create Sqlite3 db
+sqlite3 airquality.db
+
+pi@raspberrypi:~ $ sqlite3 /home/pi/Database/airquality.db
+SQLite version 3.16.2 2017-01-06 16:32:41
+Enter ".help" for usage hints.
+sqlite> ATTACH /home/pi/Database/airquality.db
+   ...> ^C
+   ...> .
+   ...> .quit
+   ...> ;
+Error: near "/": syntax error
+sqlite> ATTACH /home/pi/Database/airqualitysync.db as syncdb;
+Error: near "/": syntax error
+sqlite> ATTACH '/home/pi/Database/airqualitysync.db' as syncdb;
+sqlite> select * from syncdb.SyncTable;
+1073
+sqlite> select * from syncdb.SyncTable;
+1073
+sqlite> select * from syncdb.SyncTable;
+1073
+sqlite> select max(ID) from main.DOHSensor;
+2849
+sqlite> 
+
+
