@@ -1,0 +1,11 @@
+/usr/local/bin/AzHubService/AzHubReader.ini
+Edit LocationID
+
+
+
+sudo systemctl stop AzHubReader.service
+sudo systemctl start AzHubReader.service
+10
+0
+
+
