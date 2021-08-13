@@ -1,14 +1,16 @@
 #!/usr/local/bin/python3.6
 
-# import serial
-import FakeSerial as serial
+import serial
 import socket
 import datetime
 import time
 import os
 import sys
 import sqlite3
+import RegisterDevice
 
+from configparser import ConfigParser
+cfgfile = 'AzHubReader.ini'
 
 class Database:
     """By Amir Hassan Azimi [http://parsclick.net/]"""
@@ -76,7 +78,12 @@ class Database:
 
 class SerialWrapper:
     def __init__(self, device):
-        self.comm = serial.Serial(device, 19200)
+        self.comm = serial.Serial(port=device,
+                    baudrate=19200,
+                    bytesize=serial.EIGHTBITS,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    timeout=10)
 
     def open(self): 
         ''' Open the serial port.'''
@@ -106,23 +113,53 @@ class SerialWrapper:
         data += "\r\n"
         self.comm.write(data.encode())
 
+def openini():
+    config = ConfigParser()
+    config.read(cfgfile)
+    locationid = config.get('location', 'locationid')
+    hostid = config.get('host', 'hostid')
+    deviceid = config.get('device', 'deviceid')
+    isregistered = config.getboolean('Registration', 'isenabledforsync')
+    isrunoffline = config.getboolean('device', 'isrunoffline')
+    sitemonitor_id = config.get('Registration', 'sitemonitor_id')
+    return ( locationid, sitemonitor_id, deviceid, isregistered, isrunoffline )
+
 def main():
-    ser = SerialWrapper('COM4')
-    db = Database(filename = 'airquality.db', table = 'DOHSensor')
-#   ser.open
-    ser.open()
-    
+    locationid, sitemonitor_id, deviceid, isregistered, isrunoffline  = openini()
+    if not isrunoffline:
+        try:
+            while True:
+                RegisterDevice.main()
+                time.sleep(2)
+                locationid, sitemonitor_id, deviceid, isregistered, isrunoffline  = openini()
+                if isregistered:
+                    break
+                else:
+                    time.sleep(20)
+        except:
+            print("Error registering")
+            time.sleep(20)
+    iotunit = sitemonitor_id  + '-' + deviceid + '-' + locationid
 
     while 1:
-        datafields = ser.custom_readline().split()
-        if len(datafields) == 7:
-            readings = ser.return_rdg(datafields, 'testpi')
-            print(readings)
-            db.insert(readings)
-        else:
-            print("sleeping")
-            time.sleep(5)
+        try:
+            ser = SerialWrapper('/dev/ttyUSB0')
+            db = Database(filename = '/home/pi/Database/airquality.db', table = 'DOHSensor')
+            ser.open
+    
+            while 1:
+                datafields = ser.custom_readline().split()
+                if len(datafields) == 7:
+                    readings = ser.return_rdg(datafields, iotunit)
+                    print(readings)
+                    db.insert(readings)
+                else:
+                    print("sleeping")
+                    time.sleep(5)
+    
+        except :
+            print("Error Opening Serial Port, sleeping")
+            time.sleep(20)
 
 if __name__ == "__main__":
     main()
-    

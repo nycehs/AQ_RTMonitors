@@ -67,8 +67,8 @@ def register( device, locationid, hostid):
        config.write(configfile)
 
 def httprequest(devid):
-    apiuri = 'https://doh-airqual-registerdevice-api.azurewebsites.net/api/Register?'
-    apikey = 'code=msVsIgP1UZW7Hg1gWvBy8MhA7q7KRI4cEl1ERaoeCzEYWPos1rsJpw=='
+    apiuri = 'https://az-doh-airqual-registerdevice.azurewebsites.net/api/Register?'
+    apikey = 'code=ZiaXVqHCrU6aKwA1ixphiH0Blq8z5U6xTOYII8hEaHD6LG1/sJaMfA=='
     apiGET = apiuri + apikey
     return requests.get(apiGET, params=devid)
 
