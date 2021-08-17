@@ -1,3 +1,0 @@
-RegisterDevice.py
-apiuri:   https://doh-airqual-registerdevice-api.azurewebsites.net/api/Register? 
-apikey: code=msVsIgP1UZW7Hg1gWvBy8MhA7q7KRI4cEl1ERaoeCzEYWPos1rsJpw==
